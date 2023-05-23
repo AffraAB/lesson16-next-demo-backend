@@ -1,0 +1,93 @@
+{
+	"info": {
+		"_postman_id": "8822a90b-4fef-40ca-97aa-209b65d5199a",
+		"name": "Jensen Auth 2023",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "17504368"
+	},
+	"item": [
+		{
+			"name": "Get all bands",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Content type is json with utf-8 encoding\", () => {\r",
+							"    pm.expect(pm.response.headers.get(\"Content-Type\")).to.eql(\"application/json; charset=utf-8\");\r",
+							"});\r",
+							"\r",
+							"let contentLength = +pm.response.headers.get('Content-Length');\r",
+							"\r",
+							"pm.test(\"Returned content is not zero or null\", () => {\r",
+							"    pm.expect(contentLength).to.be.above(0).and.to.not.be.null;\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/bands/",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"bands",
+						""
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "aj4sdd223klMhjsd33223okPLkq",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "http://localhost:3000/api",
+			"type": "string"
+		}
+	]
+}
