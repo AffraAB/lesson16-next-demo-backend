@@ -10,3 +10,5 @@ To run the tests use:
 
 ## Import the tests in Postman
 file->import-> (find the .json file in the postman_tests folder) and run with Runner at the bottom
+
+Don't forget to make an environment to run in, you can select environment at the top right 
