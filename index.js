@@ -83,7 +83,7 @@ function isValidAuthToken(token) {
 }
 
 
-
+// Select all tables and views from the database and create routes for them
 (() => {
   let statement = db.prepare(`
     SELECT name, type FROM sqlite_schema
@@ -91,8 +91,8 @@ function isValidAuthToken(token) {
       type IN ('table', 'view')
       AND name NOT LIKE 'sqlite_%'
   `);
-  let tablesAndViews = statement.all();
-  for (let { name, type } of tablesAndViews) {
+  let allTables = statement.all();
+  for (let { name, type } of allTables) {
     setupRoute(name, type);
     console.log("Routes created for the", type, name);
   }
@@ -132,7 +132,7 @@ function setupRoute(table, type) {
     let result;
     try {
       result = statement.run(req.body);
-      res.status(201).json(result);
+      res.status(201).json(result); // enforce 201 status code
     } catch (error) {
       result = { error: error + "" };
       res.status(400).json(result);
