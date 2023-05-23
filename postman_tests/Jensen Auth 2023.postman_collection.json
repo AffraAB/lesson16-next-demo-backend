@@ -1,0 +1,472 @@
+{
+	"info": {
+		"_postman_id": "44502a5a-d987-4711-b61f-6d2c09fcfe12",
+		"name": "Jensen Auth 2023",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Get all bands",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Content is json with encoding utf-8', () => {\r",
+							"    pm.expect(pm.response.headers.get('Content-Type'))\r",
+							"        .to.eql('application/json; charset=utf-8');\r",
+							"});\r",
+							"\r",
+							"pm.test('Returned value is not zero or null', () => {\r",
+							"    let contentLength = +pm.response.headers.get('Content-Length');\r",
+							"    pm.expect(contentLength).to.be.above(0).and.to.not.be.null;\r",
+							"});\r",
+							"\r",
+							"// Save all ids as a comma separated list\r",
+							"let allData = pm.response.json();\r",
+							"let onlyIds = allData.map(x => x.id);\r",
+							"onlyIds = onlyIds.join(',');\r",
+							"\r",
+							"// Save to environment\r",
+							"pm.environment.set(\"currentIds\", onlyIds);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/bands/",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"bands",
+						""
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Negative: Get URL that doesn't exist",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Expect not to find anything here, 404', () => {\r",
+							"    pm.response.to.have.status(404);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/someurl",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"someurl"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Negative: Get band that doesn't exist",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Expect response to be null', () => {\r",
+							"    pm.expect(pm.response.json()).to.eq(null);\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/bands/66666666666666",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"bands",
+						"66666666666666"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Negative: Send empty body",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Expect not to find anything here, 400', () => {\r",
+							"    pm.response.to.have.status(400);\r",
+							"});\r",
+							"\r",
+							"pm.test('Expect response to be an error', () => {\r",
+							"    pm.expect(pm.response.json().error).to.not.be.undefined;\r",
+							"});\r",
+							"\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/bands/1",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"bands",
+						"1"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Change random band from collection",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Get back saved ids\r",
+							"let currentIds = pm.environment.get('currentIds');\r",
+							"\r",
+							"// Convert back to array of numbers\r",
+							"let bandIds = currentIds.split(',').map(Number);\r",
+							"let randomIdx = Math.floor(Math.random() * bandIds.length);\r",
+							"\r",
+							"pm.environment.set('randomBandId', bandIds[randomIdx]);"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"name\": \"Rush\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/bands/{{randomBandId}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"bands",
+						"{{randomBandId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get all current members",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"let arr = pm.response.json();\r",
+							"\r",
+							"// Remove all ids\r",
+							"arr.forEach(x => { delete x.id });\r",
+							"\r",
+							"// Save to environment\r",
+							"pm.environment.set('memberData', JSON.stringify(arr));\r",
+							"pm.environment.set('counter', '0');\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/members",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"members"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Delete all members",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test('Expect changes to be above 0', () => {\r",
+							"    pm.expect(pm.response.json().changes).to.be.above(0);\r",
+							"});"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/members",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"members"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Create new members",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Get back the evironment data\r",
+							"let memberData = JSON.parse(pm.environment.get('memberData'));\r",
+							"let counter = +pm.environment.get('counter');\r",
+							"\r",
+							"// Prep the body\r",
+							"let memberToAdd = memberData[counter];\r",
+							"\r",
+							"// Key keys and values\r",
+							"for(let key in memberToAdd) {\r",
+							"    let val = memberToAdd[key];\r",
+							"    pm.environment.set(key, val);\r",
+							"}\r",
+							""
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Get back the evironment data\r",
+							"let memberData = JSON.parse(pm.environment.get('memberData'));\r",
+							"let counter = +pm.environment.get('counter');\r",
+							"\r",
+							"// Get the response\r",
+							"let response = pm.response.json();\r",
+							"\r",
+							"/* tests */\r",
+							"// Check that only one change happened\r",
+							"pm.test('Only one change happened', () => {\r",
+							"    pm.expect(response.changes).to.equal(1);\r",
+							"});\r",
+							"\r",
+							"// Check for the right status code\r",
+							"pm.test('Status code should be 200, 201 or 202', () => {\r",
+							"    pm.expect(pm.response.code).to.be.oneOf([200, 201, 202]);\r",
+							"});\r",
+							"\r",
+							"// Check that we have a lastInsertRowid\r",
+							"pm.test('I should have a lastInsertRowid', () => {\r",
+							"    pm.expect(response.lastInsertRowid).to.be.a('number');\r",
+							"});\r",
+							"\r",
+							"/* end tests */\r",
+							"\r",
+							"// Save id of the last member that we created\r",
+							"memberData[counter].id = response.lastInsertRowid;\r",
+							"\r",
+							"// Increment counter\r",
+							"counter++;\r",
+							"\r",
+							"// Save environment variables again\r",
+							"pm.environment.set('memberData', JSON.stringify(memberData));\r",
+							"pm.environment.set('counter', counter);\r",
+							"\r",
+							"// Loop over each member until we have no more members in original array\r",
+							"if(memberData[counter]) {\r",
+							"    postman.setNextRequest('Create new members');\r",
+							"} else {\r",
+							"    pm.environment.set('counter', 0);\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\r\n    \"first_name\": \"{{first_name}}\",\r\n    \"last_name\": \"{{last_name}}\",\r\n    \"instrument\": \"{{instrument}}\",\r\n    \"band_id\": \"{{band_id}}\"\r\n}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{url}}/members",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"members"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Get single member and test equality",
+			"event": [
+				{
+					"listen": "prerequest",
+					"script": {
+						"exec": [
+							"// Unpack\r",
+							"let memberData = JSON.parse(pm.environment.get('memberData'));\r",
+							"let counter = +pm.environment.get('counter');\r",
+							"\r",
+							"// Pick out what member to test\r",
+							"let memberToGet = memberData[counter];\r",
+							"\r",
+							"// Set id to test\r",
+							"pm.environment.set('memberId', memberToGet.id);"
+						],
+						"type": "text/javascript"
+					}
+				},
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Unpack\r",
+							"let memberData = JSON.parse(pm.environment.get('memberData'));\r",
+							"let counter = +pm.environment.get('counter');\r",
+							"\r",
+							"// Member\r",
+							"let memberToGet = memberData[counter];\r",
+							"\r",
+							"// Get response\r",
+							"let response = pm.response.json();\r",
+							"\r",
+							"// Test deep equality\r",
+							"pm.test('Member with id: ' + memberToGet.id + ' is the same as in environment', () => {\r",
+							"    pm.expect(response).to.deep.equal(memberToGet);\r",
+							"});\r",
+							"\r",
+							"// Keep looping\r",
+							"counter++;\r",
+							"pm.environment.set('counter', counter);\r",
+							"\r",
+							"// Loop until no more members\r",
+							"if(memberData[counter]) {\r",
+							"    postman.setNextRequest('Get single member and test equality');\r",
+							"} else {\r",
+							"    pm.environment.set('counter', 0);\r",
+							"}"
+						],
+						"type": "text/javascript"
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{url}}/members/{{memberId}}",
+					"host": [
+						"{{url}}"
+					],
+					"path": [
+						"members",
+						"{{memberId}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "aj4sdd223klMhjsd33223okPLkq",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "url",
+			"value": "http://localhost:3000/api",
+			"type": "default"
+		}
+	]
+}
